@@ -1,13 +1,26 @@
 import React, { Component } from 'react';
 import Circles from '../circles/Circles';
-import { addCircle } from '../circles/actions'
-import { frameTick } from './actions';
+import Vector from '../lib/Vector';
+import Mover from '../lib/Mover';
 
 class Canvas extends Component {
     constructor(props) {
         super(props)
 
-        this.state = { mouseCoor: [], rects: [] }
+        this.state = {
+            hasTarget: false,
+            mouseCoor: [],
+            circles: [
+                new Mover({
+                    position: new Vector(60, 10),
+                    velocity: new Vector(2, 0)
+                }),
+                new Mover({
+                    position: new Vector(60, 10),
+                    velocity: new Vector(-3, 0)
+                })
+            ],
+        }
 
         this.mouseMove = this.mouseMove.bind(this)
         this.mouseClick = this.mouseClick.bind(this)
@@ -35,21 +48,36 @@ class Canvas extends Component {
     }
 
     mouseClick(e) {
-        this.store.dispatch(
-            addCircle(this.getCoordinates(e))
-        )
-
+        const circles = this.state.circles
+        const hasTarget = this.state.hasTarget
+        if (hasTarget) {
+            const coor = this.getCoordinates(e)
+            circles.forEach(circle => {
+                circle.target = new Vector(coor.x, coor.y)
+                circle.gravitySensitive = false
+                circle.frictionSensitive = false
+            })
+        } else {
+            circles.forEach(circle => {
+                circle.target = null
+                circle.gravitySensitive = true
+                circle.frictionSensitive = true
+                
+            })
+        }
+        this.setState({ hasTarget: !hasTarget })
     }
 
     draw() {
-        const state = this.store.getState()
-        const { ctx } = this
-
-        Circles(state, ctx)
+        const ctx = this.ctx
+        const circles = this.state.circles
+        circles.forEach(circle => {
+            circle.update()
+            circle.draw(ctx)
+        })
     }
 
     animate() {
-        this.store.dispatch(frameTick())
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.draw()
         requestAnimationFrame(this.animate);
@@ -58,7 +86,6 @@ class Canvas extends Component {
     componentDidMount() {
         this.canvas = this.refs.canvas
         this.ctx = this.refs.canvas.getContext('2d')
-        this.store = this.context.store
         this.animate()
     }
 
