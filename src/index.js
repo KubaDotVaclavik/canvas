@@ -1,17 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './app/App';
-import { Provider } from 'react-redux'
-import configureStore from './store';
-
-
-const store = configureStore({
-  initialState: {/* If server rendering: window.__INITIAL_STATE__*/ },
-});
 
 ReactDOM.render(
-  <Provider store={store}>
-    <App/>
-  </Provider>,
+    <App/>,
   document.getElementById('root')
 );

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import Circles from '../circles/Circles';
 import Vector from '../lib/Vector';
-import Mover from '../lib/Mover';
+import Circle from '../lib/Circle';
 
 class Canvas extends Component {
     constructor(props) {
@@ -10,16 +9,14 @@ class Canvas extends Component {
         this.state = {
             hasTarget: false,
             mouseCoor: [],
-            circles: [
-                new Mover({
-                    position: new Vector(60, 10),
-                    velocity: new Vector(2, 0)
-                }),
-                new Mover({
-                    position: new Vector(60, 10),
-                    velocity: new Vector(-3, 0)
+            circles: Array.from(new Array(80), () => {
+                const c = new Circle({
+                    radius: Math.floor(Math.random() * 10 + 2)
                 })
-            ],
+                c.randomPosition()
+                c.randomVelocity(5)
+                return c
+            })
         }
 
         this.mouseMove = this.mouseMove.bind(this)
@@ -53,7 +50,7 @@ class Canvas extends Component {
         if (hasTarget) {
             const coor = this.getCoordinates(e)
             circles.forEach(circle => {
-                circle.target = new Vector(coor.x, coor.y)
+                circle.target = new Vector(coor.x, Math.random() * 350)
                 circle.gravitySensitive = false
                 circle.frictionSensitive = false
             })
@@ -62,7 +59,8 @@ class Canvas extends Component {
                 circle.target = null
                 circle.gravitySensitive = true
                 circle.frictionSensitive = true
-                
+                circle.randomVelocity(10)
+
             })
         }
         this.setState({ hasTarget: !hasTarget })
@@ -70,10 +68,18 @@ class Canvas extends Component {
 
     draw() {
         const ctx = this.ctx
-        const circles = this.state.circles
-        circles.forEach(circle => {
-            circle.update()
-            circle.draw(ctx)
+        const {circles, mouseCoor} = this.state
+        const mouseVectore = new Vector(mouseCoor.x, mouseCoor.y)
+
+        circles.forEach(c => {
+            if (c.checkCollision(mouseVectore) && c.velocity.mag() === 0) {
+                c.gravitySensitive = true
+                c.frictionSensitive = true
+                c.randomVelocity(10)
+            }
+
+            c.update()
+            c.draw(ctx)
         })
     }
 

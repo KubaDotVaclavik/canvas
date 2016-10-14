@@ -8,7 +8,7 @@ const Y_MAX = 350
 
 class Mover {
     constructor(props) {
-        this.position = props.position
+        this.position = props.position || new Vector(0, 0)
         this.velocity = props.velocity || new Vector(0, 0)
         this.acceleration = new Vector(0, 0)
         this.mass = props.mass || 1
@@ -50,16 +50,20 @@ class Mover {
         return this;
     }
 
-    // getNew(){
-    //     debugger;
-    //     return new Mover(this)
-    // }
-
     applyForce(force) {
         if (!force instanceof Vector) {
             throw new Error('Wrong data type. Expected instence of Vector.')
         }
         this.acceleration.add(force)
+    }
+
+    randomVelocity(n = 1) {
+        this.velocity = new Vector(0.5 - Math.random(), 0.5 - Math.random())
+            .multi(n)
+    }
+
+    randomPosition() {
+        this.position = new Vector(X_MAX * Math.random(), Y_MAX * Math.random())
     }
 
     applyGravity() {
@@ -86,6 +90,12 @@ class Mover {
             const sinRatio = Math.sin(Math.PI / 2 * divRatio)
             const direction = toTarget.new().normalize()
             this.velocity = direction.multi(1 + 30 * sinRatio)
+
+            if (toTarget.mag() < 3) {
+                this.position = this.target.new()
+                this.velocity.multi(0)
+                this.target = null
+            }
         }
     }
 
@@ -128,7 +138,7 @@ class Mover {
 
     draw(ctx) {
         ctx.beginPath();
-        ctx.arc(this.position.x, this.position.y, 5, 0, 2 * Math.PI);
+        ctx.arc(this.position.x, this.position.y, 1, 0, 2 * Math.PI);
         ctx.stroke();
     }
 }
