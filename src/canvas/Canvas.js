@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import Vector from '../lib/Vector';
 import Circle from '../lib/Circle';
 
+const getStyle = (style) =>
+    Object.assign({
+        position: 'absolute' 
+    }, style)
+
 class Canvas extends Component {
     constructor(props) {
         super(props)
@@ -11,7 +16,9 @@ class Canvas extends Component {
             mouseCoor: [],
             circles: Array.from(new Array(80), () => {
                 const c = new Circle({
-                    radius: Math.floor(Math.random() * 10 + 2)
+                    radius: Math.floor(Math.random() * 10 + 2),
+                    X_MAX: props.width,
+                    Y_MAX: props.height
                 })
                 c.randomPosition()
                 c.randomVelocity(5)
@@ -45,12 +52,13 @@ class Canvas extends Component {
     }
 
     mouseClick(e) {
+        const { height } = this.props  
         const circles = this.state.circles
         const hasTarget = this.state.hasTarget
         if (hasTarget) {
             const coor = this.getCoordinates(e)
             circles.forEach(circle => {
-                circle.target = new Vector(coor.x, Math.random() * 350)
+                circle.target = new Vector(coor.x, Math.random() * height)
                 circle.gravitySensitive = false
                 circle.frictionSensitive = false
             })
@@ -96,10 +104,11 @@ class Canvas extends Component {
     }
 
     render() {
-        const { width, height } = this.props;
+        const { width, height, style } = this.props;
 
         return (
-            <canvas style={{ border: '1px solid #ddd' }}
+            <canvas 
+                style={getStyle(style)}
                 width={width}
                 height={height}
                 ref="canvas"

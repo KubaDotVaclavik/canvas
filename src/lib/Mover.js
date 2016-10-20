@@ -3,11 +3,10 @@ import Vector from './Vector'
 const G = 0.1
 const FRICTION = 0.01
 
-const X_MAX = 400
-const Y_MAX = 350
-
 class Mover {
     constructor(props) {
+        this.X_MAX = props.X_MAX
+        this.Y_MAX = props.Y_MAX
         this.position = props.position || new Vector(0, 0)
         this.velocity = props.velocity || new Vector(0, 0)
         this.acceleration = new Vector(0, 0)
@@ -63,13 +62,13 @@ class Mover {
     }
 
     randomPosition() {
-        this.position = new Vector(X_MAX * Math.random(), Y_MAX * Math.random())
+        this.position = new Vector(this.X_MAX * Math.random(), this.Y_MAX * Math.random())
     }
 
     applyGravity() {
         if (this.gravitySensitive) {
             const gravity = new Vector(0, this.mass * G)
-            if (this.position.y < Y_MAX - 1) {
+            if (this.position.y < this.Y_MAX - 1) {
                 this.applyForce(gravity)
             }
         }
@@ -103,8 +102,8 @@ class Mover {
         const EDGE_ABSORBE = 0.4
 
         if (this.edgeCollision) {
-            if (this.position.x > X_MAX) {
-                this.position.x = X_MAX
+            if (this.position.x > this.X_MAX) {
+                this.position.x = this.X_MAX
                 this.velocity
                     .multi(new Vector(-1, 1))
                     .multi(new Vector(1 - EDGE_ABSORBE, 1))
@@ -123,8 +122,8 @@ class Mover {
                     this.velocity.x = 0
                 }
             }
-            if (this.position.y > Y_MAX) {
-                this.position.y = Y_MAX
+            if (this.position.y > this.Y_MAX) {
+                this.position.y = this.Y_MAX
                 this.velocity
                     .multi(new Vector(1, -1))
                     .multi(new Vector(1, 1 - EDGE_ABSORBE))
