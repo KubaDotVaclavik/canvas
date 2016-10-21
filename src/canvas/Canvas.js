@@ -52,13 +52,15 @@ class Canvas extends Component {
     }
 
     mouseClick(e) {
-        const { height } = this.props  
+        const { height, distributeAlongPath } = this.props  
         const circles = this.state.circles
         const hasTarget = this.state.hasTarget
         if (hasTarget) {
+            const coors = distributeAlongPath(circles.length)
             const coor = this.getCoordinates(e)
-            circles.forEach(circle => {
-                circle.target = new Vector(coor.x, Math.random() * height)
+            
+            circles.forEach((circle, i) => {
+                circle.target = new Vector(coors[i].x, coors[i].y)
                 circle.gravitySensitive = false
                 circle.frictionSensitive = false
             })
